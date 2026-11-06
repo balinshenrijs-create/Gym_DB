@@ -32,3 +32,7 @@ Datubāzē ir 8 tabulas:
 3. Palaid programmu ar komandu:
    ```bash
    python main.py
+
+## ieteikumi:
+1. uzstādīt limitus mērījumiem
+2. nomainīt tab no str uz int
