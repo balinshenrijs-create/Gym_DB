@@ -49,15 +49,84 @@ def add_tab(notebook, title, table, labels, fields, passwords, query, columns):
         status.config(text=f"Ierakstu skaits: {len(rows)}")
 
     def save():
-        values = [entry.get().strip() for entry in entries.values()]
-        if not values[0]:
+        raw_values = [entry.get().strip() for entry in entries.values()]
+        if not raw_values[0]:
             messagebox.showerror("Trūkst datu", "Aizpildi pirmo obligāto lauku!")
             return
+        
+        processed_values = []
+        for field_name, val in zip(fields, raw_values):
+            if not val:
+                processed_values.append(None)  # Ja lauks ir tukšs, saglabājam NULL
+                continue
+                
+            # Pārbaudām, vai laukam jābūt skaitliskam
+            if any(k in field_name for k in ["weight", "reps", "calories", "protein", "carbs", "fats", "height", "pct", "cm", "seconds", "number", "id"]):
+                try:
+                    # Konvertējam uz float, ja ir decimāldaļa, vai int, ja vesels skaitlis
+                    if "." in val or "," in val:
+                        num_val = float(val.replace(",", "."))
+                    else:
+                        num_val = int(val)
+                    
+                    # Visaptverošas limitu un reālistisku mērījumu pārbaudes:
+                    if "weight" in field_name or "target_weight" in field_name:
+                        if num_val < 20 or num_val > 500:
+                            messagebox.showerror("Nederīga vērtība", "Svaram jābūt reālistiskā diapazonā no 20 līdz 500 kg!")
+                            return
+                    
+                    if "height" in field_name:
+                        if num_val < 50 or num_val > 250:
+                            messagebox.showerror("Nederīga vērtība", "Augumam jābūt robežās no 50 līdz 250 cm!")
+                            return
+                    
+                    if "body_fat_pct" in field_name:
+                        if num_val < 2 or num_val > 70:
+                            messagebox.showerror("Nederīga vērtība", "Tauku procentam jābūt reālistiskam (no 2% līdz 70%)!")
+                            return
+                    
+                    if any(c in field_name for c in ["chest_cm", "waist_cm", "hips_cm"]):
+                        if num_val < 30 or num_val > 300:
+                            messagebox.showerror("Nederīga vērtība", "Ķermeņa apkārtmēram jābūt robežās no 30 līdz 300 cm!")
+                            return
+                    
+                    if "reps" in field_name:
+                        if num_val < 1 or num_val > 1000:
+                            messagebox.showerror("Nederīga vērtība", "Atkārtojumu skaitam jābūt vismaz 1!")
+                            return
+                    
+                    if "set_number" in field_name:
+                        if num_val < 1 or num_val > 100:
+                            messagebox.showerror("Nederīga vērtība", "Piegājiena numuram jābūt no 1 līdz 100!")
+                            return
+
+                    if "calories" in field_name:
+                        if num_val < 0 or num_val > 10000:
+                            messagebox.showerror("Nederīga vērtība", "Kaloriju skaitam jābūt no 0 līdz 10000 kcal!")
+                            return
+
+                    if any(nutrient in field_name for nutrient in ["protein_g", "carbs_g", "fats_g"]):
+                        if num_val < 0 or num_val > 2000:
+                            messagebox.showerror("Nederīga vērtība", "Uzturvielu gramiem jābūt reālistiskās robežās (līdz 2000g)!")
+                            return
+
+                    if "rest_seconds" in field_name:
+                        if num_val < 0 or num_val > 3600:
+                            messagebox.showerror("Nederīga vērtība", "Atpūtas laikam jābūt no 0 līdz 3600 sekundēm!")
+                            return
+
+                    processed_values.append(num_val)
+                except ValueError:
+                    messagebox.showerror("Kļūda", f"Laukā '{field_name}' ir jāievada derīgs skaitlis!")
+                    return
+            else:
+                processed_values.append(val)
+
         try:
-            placeholders = ", ".join("?" for _ in values)
+            placeholders = ", ".join("?" for _ in processed_values)
             run_query(
                 f"INSERT INTO {table} ({', '.join(fields)}) VALUES ({placeholders})",
-                tuple(values),
+                tuple(processed_values),
             )
             messagebox.showinfo("Saglabāts", "Ieraksts veiksmīgi saglabāts.")
             for entry in entries.values():
