@@ -1,6 +1,7 @@
 # Treniņu un Fitnesa Datubāzes Sistēma
 
 Skolas projekts, kas izveidots, izmantojot Python, SQLite un tkinter.
+   ![Datubāzes shēma](datubaze.png)
 
 ## Projekta faili
 
@@ -25,6 +26,16 @@ Datubāzē ir 8 tabulas:
 - `user_profiles`
 - `body_measurements`
 
+## Izmantotās tehnoloģijas un bibliotēkas
+Programmas izstrādē nav izmantotas nekādas trešo pušu bibliotēkas, kuras būtu jālādē caur `pip` – viss balstās uz Python standarta bibliotēkām:
+- `tkinter` — grafiskajai saskarnei un logiem.
+- `sqlite3` — datubāzes uzturēšanai.
+- `os` — failu ceļu un direktoriju apstrādei.
+
+## Ieteikumi un uzlabojumi projektā:
+1. **Uzstādīt limitus mērījumiem:** Pievienotas pārbaudes, lai nevarētu ievadīt nereālas vērtības (piemēram, neiespējamu svaru vai augumu).
+2. **Datu tipi:** Sakārtoti datu tipi un lauki, lai viss pareizi strādātu ar skaitļiem un tekstiem.
+
 ## Lietošana
 
 1. Pārliecinies, ka datorā ir uzstādīts Python.
@@ -32,7 +43,3 @@ Datubāzē ir 8 tabulas:
 3. Palaid programmu ar komandu:
    ```bash
    python main.py
-
-## ieteikumi:
-1. uzstādīt limitus mērījumiem
-2. nomainīt tab no str uz int
